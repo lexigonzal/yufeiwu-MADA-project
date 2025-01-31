@@ -56,16 +56,16 @@ _Write a summary of your project._
 # Introduction 
 
 ## General Background Information
-_Provide enough background on your topic that others can understand the why and how of your analysis_
+
 H-1B is a nonimmigrant visa category that allows employers to hire foreign workers in specialty occupations, like methematics, engineering, technology, and medical sciences [@H1BVisaProgram2016]. It requires the employee to have a bachelor's degree or equivalent in the specific specialty. Typically, the maximun duration of an H-1B visa is six years.It is the most common work visa in the US. There are 65,000 available H-1B visas each year, with 20,000 additional visas for candidates with a master's or doctorate degree from a U.S. institution. If there are more than 65,000 applications, USCIS will run a lottery to decide who can file an H-1B petition. As USCIS is receiving more and more H-1B registration these years, it's harder for a foreign worker to get an H-1B visa. The Labor Condition Application (LCA) is an application filed by employers to apply for work authorization on behalf of employees as a prerequisite for H-1B [@LaborConditionApplication2025]. The LCA contains essential details such as job title, wage, and location about the proposed H-1B employment. Therefore, analyzing the LCA data can provide some ideas on the H-1B application status.
 
 ## Description of data and data source
-_Describe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section._
+
 The data is H1B LCA Disclosure Data (2020-2024) from [Kaggle](https://www.kaggle.com/datasets/zongaobian/h1b-lca-disclosure-data-2020-2024/data). It contains LCA disclosure datasets from U.S. Department of Labor, covering the period from 2020 to 2024. It includes information such as case status, job title, Standard Occupational
 Classification (SOC) title, location, and wages.
 
 ## Questions/Hypotheses to be addressed
-_State the research questions you plan to answer with this analysis._
+
 This analysis will primarily focus on certified cases. The key research questions to be examined include:
 Distribution Analysis:
 What is the distribution of certified cases across various features such as SOC titles, locations, wages, and employer names?
@@ -90,7 +90,6 @@ Examples of reproducible research projects can for instance be found in [@mckay2
 
 # Methods 
 
-_Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement._
 The data will be reduced to include obeservations with certified case status and visa class of H-1B. Variable will only include RECEIVED_DATE, SOC_TITLE, EMPLOYER_NAME, EMPLOYER_STATE, WORKSITE_STATE, WAGE_RATE_OF_PAY_FROM, PREVAILING_WAGE.
 
 
@@ -110,7 +109,7 @@ knitr::include_graphics(here("assets","antigen-recognition.png"))
 
 
 ## Data aquisition
-_As applicable, explain where and how you got the data. If you directly import the data from an online source, you can combine this section with the next._
+
 The dataset used in this analysis was obtained from Kaggle. The data was downloaded in CSV format.
 
 ## Data import and cleaning
