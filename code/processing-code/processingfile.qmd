@@ -1,0 +1,92 @@
+---
+title: "Data cleaning"
+author: "Yufei Wu"
+output: html_document
+---
+
+## Remark
+Since the dataset for this project is too large to upload to GitHub, I reduced its size and saved the smaller version as an RDS file, treating it as the raw data. Here's the code I used to reduce size:
+
+ # load packages
+ library(here)
+ library(dplyr)
+ # load raw data
+ LCAraw1 <- read.csv(here("data", "raw-data", "LCA2020to2024.csv"))
+ # Shrink the data
+ colnames(LCAraw1)
+ LCAraw <- LCAraw1 %>%
+   select(CASE_STATUS, VISA_CLASS, RECEIVED_DATE, SOC_TITLE, EMPLOYER_NAME, EMPLOYER_STATE, WORKSITE_STATE, WAGE_RATE_OF_PAY_FROM, WAGE_UNIT_OF_PAY, PREVAILING_WAGE, PW_UNIT_OF_PAY)
+ # Save as rds
+ save_data_location <- here::here("data","raw-data","LCAraw.rds")
+ saveRDS(LCAraw, file = save_data_location)
+
+# Setup
+
+```{r}
+# Load packages
+library(here)
+library(dplyr)
+library(tidyverse)
+```
+
+
+# Data loading
+
+```{r}
+# load raw data
+LCAraw <- readRDS(here("data", "raw-data", "LCAraw.rds"))
+```
+
+
+# Check data
+
+```{r}
+# Get the overview of the data
+dim(LCAraw)
+colnames(LCAraw)
+str(LCAraw)
+head(LCAraw)
+```
+
+
+# Cleaning
+
+```{r}
+# Keep only the certified case and H-1B visa, and remove these two column
+LCAdata <- LCAraw %>%
+  filter(CASE_STATUS == "Certified", VISA_CLASS == "H-1B")%>%
+  select(RECEIVED_DATE, SOC_TITLE, EMPLOYER_NAME, EMPLOYER_STATE, WORKSITE_STATE, WAGE_RATE_OF_PAY_FROM, WAGE_UNIT_OF_PAY, PREVAILING_WAGE, PW_UNIT_OF_PAY)
+
+# Check missing values per column
+colSums(is.na(LCAdata))
+
+# Remove missing values
+LCAdata <- LCAdata %>% drop_na()
+
+# Check again
+colSums(is.na(LCAdata)) # now it is good
+
+# Standardize all character columns to a consistent case (except state name)
+LCAdata <- LCAdata %>%
+  mutate(
+    SOC_TITLE = tolower(SOC_TITLE),
+    EMPLOYER_NAME = tolower(EMPLOYER_NAME)
+  )
+
+# take a look at the processed data
+dim(LCAdata)
+head(LCAdata)
+```
+
+
+
+# Save data 
+
+```{r}
+save_data_location <- here::here("data","processed-data","LCAdata.rds")
+saveRDS(LCAdata, file = save_data_location)
+```
+
+
+
+
