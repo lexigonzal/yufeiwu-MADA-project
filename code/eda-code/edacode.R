@@ -57,6 +57,9 @@ ggsave(filename = "results/figures/top10_emp_state.png", plot = p3, width = 8, h
 # Wage units were standardized by retaining only observations where WAGE_UNIT_OF_PAY and PW_UNIT_OF_PAY were specified as "Year", ensuring consistency in wage comparisons.
 LCAwage <- LCAdata %>%
   filter(WAGE_UNIT_OF_PAY == "Year", PW_UNIT_OF_PAY == "Year")
+# Save as rds
+save_data_location <- here::here("data","processed-data","LCAwage.rds")
+saveRDS(LCAwage, file = save_data_location)
 
 # Distribution of PREVAILING_WAGE
 p4<-ggplot(LCAwage, aes(x = PREVAILING_WAGE)) +
