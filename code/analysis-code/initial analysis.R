@@ -7,6 +7,9 @@ library(lubridate)
 library(embed)
 library(here)
 library(ggplot2)
+library(scales)
+library(rsample)
+#install.packages("ranger")
 
 # Load the data
 LCAwage <- readRDS(here("data", "processed-data", "LCAwage.rds"))
@@ -37,6 +40,9 @@ LCAwage_Jan2024 <- LCAwage_Jan2024 %>%
     right = FALSE
   ))
 head(LCAwage_Jan2024)
+
+save_data_location <- here::here("data","processed-data","LCAwage_Jan2024.rds")
+saveRDS(LCAwage_Jan2024, file = save_data_location)
 
 # Split the data into training (80%) and testing (20%) sets
 set.seed(123)
@@ -296,3 +302,54 @@ combined_accuracy_all
 # save as rds
 saveRDS(combined_accuracy_all, file = "results/tables/combined_accuracy_all.rds")
 
+
+# Fit a null model for comparison
+
+# Create a recipe that only includes an intercept (i.e. no predictors)
+null_recipe <- recipe(WAGE_CAT ~ 1, data = train_data)
+
+# Specify a null model for classification using the parsnip engine
+null_spec <- null_model(mode = "classification") %>%
+  set_engine("parsnip")
+
+# Combine the recipe and the null model into a workflow
+null_workflow <- workflow() %>%
+  add_recipe(null_recipe) %>%
+  add_model(null_spec)
+
+# Fit the null model on the training data
+null_fit <- null_workflow %>% fit(data = train_data)
+
+# Generate predictions on the test data and bind them with test_data
+null_test_predictions <- test_data %>% 
+  bind_cols(
+    predict(null_fit, test_data),
+    predict(null_fit, test_data, type = "prob")
+  )
+
+# Evaluate accuracy on the test data and label the dataset
+null_test_accuracy <- null_test_predictions %>%
+  accuracy(truth = WAGE_CAT, estimate = .pred_class) %>%
+  mutate(dataset = "Test")
+
+# Generate predictions on the training data and bind them with train_data
+null_train_predictions <- train_data %>% 
+  bind_cols(
+    predict(null_fit, train_data),
+    predict(null_fit, train_data, type = "prob")
+  )
+
+# Evaluate accuracy on the training data and label the dataset
+null_train_accuracy <- null_train_predictions %>%
+  accuracy(truth = WAGE_CAT, estimate = .pred_class) %>%
+  mutate(dataset = "Train")
+
+# Combine the null model metrics into one tibble for comparison
+combined_null_accuracy <- bind_rows(null_train_accuracy, null_test_accuracy) %>%
+  select(dataset, .metric, .estimator, .estimate)
+
+# Print the combined null model accuracy
+combined_null_accuracy
+
+# Save the null model accuracy as an RDS file
+saveRDS(combined_null_accuracy, file = "results/tables/combined_null_accuracy.rds")

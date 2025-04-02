@@ -1,5 +1,5 @@
 ---
-title: "Analysis of H-1B Visa Workers Using H-1B LCA Disclosure Data (2020–2024)"
+title: "Working Status Analysis of H-1B Visa Workers Using H-1B LCA Disclosure Data (2020–2024)"
 author: "Yufei Wu"
 format:
   docx:
@@ -37,7 +37,7 @@ $\land$ Corresponding author: yufeiwu@uga.edu
 
 
 # Summary/Abstract
-
+To be added.
 
 
 {{< pagebreak >}}
@@ -47,11 +47,7 @@ $\land$ Corresponding author: yufeiwu@uga.edu
 
 ## General Background Information
 
-H-1B is a nonimmigrant visa category that allows employers to hire foreign workers in specialty occupations, like methematics, engineering, technology, and medical sciences [@H1BVisaProgram2016]. It requires the employee to have a bachelor's degree or equivalent in the specific specialty. Typically, the maximun duration of an H-1B visa is six years.It is the most common work visa in the US. There are 65,000 available H-1B visas each year, with 20,000 additional visas for candidates with a master's or doctorate degree from a U.S. institution. If there are more than 65,000 applications, USCIS will run a lottery to decide who can file an H-1B petition. As USCIS is receiving more and more H-1B registration these years, it's harder for a foreign worker to get an H-1B visa. The Labor Condition Application (LCA) is an application filed by employers to apply for work authorization on behalf of employees as a prerequisite for H-1B [@LaborConditionApplication2025]. The LCA contains essential details such as job title, wage, and location about the proposed H-1B employment. Therefore, analyzing the LCA data can provide some ideas on the H-1B application status.
-
-## Description of data and data source
-
-The data is H1B LCA Disclosure Data (2020-2024) from [Kaggle](https://www.kaggle.com/datasets/zongaobian/h1b-lca-disclosure-data-2020-2024/data). It contains LCA disclosure datasets from U.S. Department of Labor, covering the period from 2020 to 2024, and includes information such as case status, job title, Standard Occupational Classification (SOC) title, location, and wages.
+H-1B is a nonimmigrant visa category that allows employers to hire foreign workers in specialty occupations, like methematics, engineering, technology, and medical sciences [@H1BVisaProgram2016]. It requires the employee to have a bachelor's degree or equivalent in the specific specialty. Typically, the maximun duration of an H-1B visa is six years.It is the most common work visa in the US. There are 65,000 available H-1B visas each year, with 20,000 additional visas for candidates with a master's or doctorate degree from a U.S. institution. If there are more than 65,000 applications, USCIS will run a lottery to decide who can file an H-1B petition. As USCIS is receiving more and more H-1B registration these years, it's harder for a foreign worker to get an H-1B visa. The Labor Condition Application (LCA) is an application filed by employers to apply for work authorization on behalf of employees as a prerequisite for H-1B. The LCA contains essential details such as job title, wage, and location about the proposed H-1B employment. Therefore, analyzing the LCA data can provide some ideas on the H-1B application status [@mahajan2024impact].
 
 ## Questions/Hypotheses to be addressed
 
@@ -86,7 +82,7 @@ Which factors contribute most significantly to wage determination in certified c
 
 ## Data aquisition and cleaning
 
-The dataset used in this analysis is the H1B LCA Disclosure Data (2020-2024) from [Kaggle](https://www.kaggle.com/datasets/zongaobian/h1b-lca-disclosure-data-2020-2024/data). It comprises labor condition application (LCA) disclosure records from the U.S. Department of Labor, covering the period from 2020 to 2024. The dataset includes key information such as case status, job title, Standard Occupational Classification (SOC) title, employer details, location, and wages.
+The dataset is H1B LCA Disclosure Data (2020-2024) from the U.S. Department of Labor. The data is provided by employers and includes final determinations issued by the Department’s Office of Foreign Labor Certification (OFLC) under the Employment and Training Administration (ETA). It includes information such as case status, job title, Standard Occupational Classification (SOC) title, location, and wages. It can be easily downloaded from [Kaggle](https://www.kaggle.com/datasets/zongaobian/h1b-lca-disclosure-data-2020-2024/data).
 
 To ensure data quality, the dataset was filtered to include only certified cases and those specifically related to H-1B visa applications.
 
@@ -99,7 +95,15 @@ Observations with missing values in the selected variables were removed. All cha
 
 
 ## Statistical analysis
-Various plots were created to visualize the data. Classification models were used to analyze the categorical outcome.
+
+### Exploratory/Descriptive Analysis
+The method began with an exploratory analysis to assess the overall structure of the dataset. Univariate techniques were applied to examine the distribution of key variables, such as job titles, employers, and geographic locations, by analyzing application counts over a multi-year period. Additionally, the distribution of prevailing wages was evaluated using visualizations to understand the range and concentration of wage values.
+
+### Initial Statistical Analysis
+For the initial statistical analysis, a half-month subset of the data (from January 1–15, 2024) was selected. The continuous wage variable was then converted into categorical ranges to facilitate further analysis. Bivariate analyses were conducted using Random Forest classification models with individual predictors, including SOC title, employer location, worksite location, and employer name. These single predictor models were compared against a null model to assess their predictive utility.
+
+### Full Analysis
+In the full analysis phase, multiple advanced modeling techniques were employed to predict wages. The methodology involved developing models using Random Forest, XGBoost, and SVM, with a comprehensive cross-validation approach (5-fold with 5 repetitions) to ensure robust evaluation. A comparative analysis of the training and test performance of these models was carried out to identify the approach that best balanced model complexity and generalization capability for wage prediction. 
 
 {{< pagebreak >}}
 
@@ -173,17 +177,17 @@ knitr::include_graphics(here("results","figures","remote_trend_absolute.png"))
 ```
 
 
-## Basic statistical analysis
-### Bivariate Analysis
-The variable WAGE_RATE_OF_PAY_FROM was selected as the outcome of interest to study the wages of H-1B workers. I first conducted a bivariate analysis to identify potential predictor variables. To perform the analysis, I selected a half-month subset of the data.
+## Initial statistical analysis
+
+The variable wage was selected as the outcome of interest to study the wages of H-1B workers. I first conducted a bivariate analysis to identify potential predictor variables. To perform the analysis, I selected a half-month subset of the data.
 
 The @fig-distribution_WAGE_Jan2024 illustrates a histogram of wage distribution during January 1–15, 2024. The continuous wage variable was categorized into four ranges: "(0, 75,000)", "(75,000, 150,000)", "(150,000, 225,000)", and "Above 225,000", converting it into a categorical variable.
 
-A random forest model was applied for classification using a single predictor, with 1,380 observations in the training set and 346 observations in the testing set. @tbl-combined_accuracy1 to @tbl-combined_accuracy4 summarize the model fit for the predictors: job title (SOC_TITLE), employer location (EMPLOYER_STATE), worksite location (WORKSITE_STATE), and employer (EMPLOYER_NAME). The results indicate that these variables exhibit moderate predictive performance.
+A random forest model was applied for classification using a single predictor, with 1,380 observations in the training set and 346 observations in the testing set. @tbl-combined_accuracy1 to @tbl-combined_accuracy4 summarize the model fit for the predictors: SOC title, employer location, worksite location, and employer name. The results indicate that these variables exhibit moderate predictive performance.
 
 Next, a multivariate random forest model was developed. @tbl-combined_accuracy_all shows that the multivariate model outperformed the bivariate models.
 
-In the next step, different classification algorithms will be explored to further enhance model performance. Additionally, cross-validation will be incorporated to improve model reliability.
+All the models performed better than null model (@tbl-combined_null_accuracy), with the multivariate model performed best.
 ```{r}
 #| label: fig-distribution_WAGE_Jan2024
 #| fig-cap: "Distribution of Wages (January 1–15, 2024)."
@@ -231,8 +235,26 @@ table5 = readRDS(here("results","tables","combined_accuracy_all.rds"))
 knitr::kable(table5)
 ```
 
+```{r}
+#| label: tbl-combined_null_accuracy
+#| tbl-cap: "Null Model."
+#| echo: FALSE
+table6 = readRDS(here("results","tables","combined_null_accuracy.rds"))
+knitr::kable(table6)
+```
+
 ## Full analysis
 
+The initial statistical analysis shows that variables SOC title, employer location, worksite location, and employer name can serve as predictors for outcome variable wage. Based on that, Random Forest, XGBoost, and SVM were used to fit the model, including cross-validation (5-fold and 5 times repetition).
+
+Tables summarizing the performance of the three models can be found in Supplement Table 2-4. @fig-model_compare shows the cmoparison of model performance among Random Forest, XGBoost, and SVM. SVM achieves the highest accuracy on the training data (0.886), while Random Forest (0.820) and XGBoost (0.738) show slightly lower training accuracy compared to SVM. On the test set, random forest outperform among the three models with an accuracy of 0.740. The SVM model's high training performance compared with its relatively lower test performance (0.717) indicates that it might be capturing noise or very specific patterns in the training data that do not carry over to unseen data. In contrast, Random Forest keeps a better balance between fitting the training data and maintaining generalization on the test data. Therefore, the Random Forest model can be chosen to predict the wage since it appears more robust on the test data.
+
+```{r}
+#| label: fig-model_compare
+#| fig-cap: "Comparison of Model Performance: Random Forest, XGBoost, and SVM."
+#| echo: FALSE
+knitr::include_graphics(here("results","figures","model_compare.png"))
+```
 
 {{< pagebreak >}}
 

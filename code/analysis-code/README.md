@@ -1,3 +1,5 @@
 # analysis-code
 
-This folder contains  an R script with a bit of a statistical analysis. This is only implemented as an R script, no Quarto version. 
+This folder contains two R script files with both initial and full statistical analysis.
+
+The code produces a few tables and figures, which are saved in the appropriate `results` sub-folder.

@@ -24,7 +24,7 @@ You can find all the supplemetary materials (figures and tables) in the suppleme
 
 
 # Additional results
-
+## Exploratory/Descriptive analysis
 
 @tbl-sum_prev_wage shows a summary table for prevailing wage.
 
@@ -63,6 +63,34 @@ knitr::include_graphics(here("results","figures","bottom_wage_by_employer.png"))
 knitr::include_graphics(here("results","figures","bottom_wage_by_state.png"))
 ```
 
+
+## Model Fitting
+
+@tbl-rf_combined_accuracy_cv_default to @tbl-combined_accuracy_cv_svm show the model accuracy in both training and test data of the three models: Random Forest, XGBoost, and SVM.
+
+```{r}
+#| label: tbl-rf_combined_accuracy_cv_default
+#| tbl-cap: "Accuracy of Random Forest."
+#| echo: FALSE
+table2 = readRDS(here("results","tables","rf_combined_accuracy_cv_default.rds"))
+knitr::kable(table2)
+```
+
+```{r}
+#| label: tbl-combined_accuracy_cv_xgb_reg
+#| tbl-cap: "Accuracy of XGBoost."
+#| echo: FALSE
+table3 = readRDS(here("results","tables","combined_accuracy_cv_xgb_reg.rds"))
+knitr::kable(table3)
+```
+
+```{r}
+#| label: tbl-combined_accuracy_cv_svm
+#| tbl-cap: "Accuracy of SVM."
+#| echo: FALSE
+table4 = readRDS(here("results","tables","combined_accuracy_cv_svm.rds"))
+knitr::kable(table4)
+```
 
 {{< pagebreak >}}
 
