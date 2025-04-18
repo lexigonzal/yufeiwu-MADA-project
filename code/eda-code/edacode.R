@@ -4,7 +4,8 @@ library(here)
 library(dplyr)
 library(scales)
 library(lubridate)
-
+library(gridExtra)
+library(grid)
 
 # load data
 LCAdata <- readRDS(here("data", "processed-data", "LCAdata.rds"))
@@ -257,4 +258,37 @@ p_remote_abs <- ggplot(remote_trends_abs, aes(x = year, y = remote_count)) +
 # Save the plot
 dir.create("results/figures", recursive = TRUE, showWarnings = FALSE)
 ggsave(filename = "results/figures/remote_trend_absolute.png", plot = p_remote_abs, width = 8, height = 6)
+
+
+# Function to add labels to a plot
+add_label <- function(plot, label) {
+  plot + annotation_custom(grob = textGrob(label, x = unit(0.03, "npc"), y = unit(0.98, "npc"), 
+                                           gp = gpar(fontsize = 10, fontface = "bold")))
+}
+
+# Add labels to each plot
+p1_labeled <- add_label(p1, "(a)")
+p2_labeled <- add_label(p2, "(b)")
+p3_labeled <- add_label(p3, "(c)")
+p4_labeled <- add_label(p4, "(d)")
+
+# Univariate Analysis: Distribution Analysis with labels
+univariate_panel <- grid.arrange(p1_labeled, p2_labeled, p3_labeled, p4_labeled, ncol = 2, 
+                                 top = "Univariate Analysis: Distribution Analysis")
+
+# Save the univariate panel with labels
+ggsave(filename = "results/figures/univariate_analysis_panel_with_labels.png", plot = univariate_panel, width = 12, height = 10)
+
+# Add labels to the bivariate plots
+p5_labeled <- add_label(p5, "(a)")
+p6_labeled <- add_label(p6, "(b)")
+p7_labeled <- add_label(p7, "(c)")
+p_remote_abs_labeled <- add_label(p_remote_abs, "(d)")
+
+# Bivariate Analysis with labels
+bivariate_panel <- grid.arrange(p5_labeled, p6_labeled, p7_labeled, p_remote_abs_labeled, ncol = 2, 
+                                top = "Bivariate Analysis")
+
+# Save the bivariate panel with labels
+ggsave(filename = "results/figures/bivariate_analysis_panel_with_labels.png", plot = bivariate_panel, width = 12, height = 10)
 

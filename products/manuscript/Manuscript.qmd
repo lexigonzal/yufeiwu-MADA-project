@@ -37,7 +37,13 @@ $\land$ Corresponding author: yufeiwu@uga.edu
 
 
 # Summary/Abstract
-To be added.
+Background: The H-1B visa allows U.S. employers to hire foreign workers in specialized fields like technology, engineering, and medical sciences. It requires a bachelor’s degree or equivalent and typically lasts up to six years. Annually, 65,000 visas are available, with an additional 20,000 for candidates with U.S. master’s or doctorate degrees. Due to increasing applications, a lottery system determines who can file an H-1B petition. Employers must file a Labor Condition Application (LCA), detailing job title, wage, and location, as a prerequisite for H-1B approval. Analyzing LCA data can offer insights into H-1B application trends.
+
+Data: This project uses LCA disclosure datasets from the U.S. Department of Labor, covering the period from 2020 to 2024. The data is provided by employers and includes final determinations issued by the Department’s Office of Foreign Labor Certification (OFLC) under the Employment and Training Administration (ETA). The dataset contains key variables such as job title, wage, and employer information for H-1B workers, making it useful for analyzing their employment status.
+
+Methods: The analysis began by cleaning and filtering the H1B LCA Disclosure Data (2020–2024) to include only certified H-1B cases, focusing on key variables such as job titles, employer details, and wages. Univariate analysis was conducted to identify the most common job titles, top employers, and states with the highest number of applications, along with analyzing wage distributions. Bivariate analysis followed, examining median wages across different job titles, employers, and states, and tracking remote work trends before and after the pandemic. Predictive modelling was carried out only on a half‑month slice of the data (1–15 January 2024). Wages were binned into four ordered categories. Single‑predictor random‑forest classifiers (SOC title, employer state, work‑site state, employer) and a multivariate random‑forest model were trained, followed by three multivariate algorithms (Random Forest, XGBoost, and Support‑Vector Machine), evaluated with 5×5 repeated cross‑validation. Accuracy was the main metric; final models were refit on the 80% training portion of the slice and scored on the 20% hold‑out test set.
+
+Results: Within the modelling slice, each single‑predictor forest out‑performed a null model (test accuracy ≈ 0.62–0.68). The multivariate forest improved test accuracy to 0.73. Among the three advanced models, Support‑Vector Machine attained the highest training accuracy (0.886) but lower test accuracy (0.717), indicating over‑fitting. Random Forest achieved the best balance between fit and generalisation (train=0.820; test=0.740) and was selected as the preferred wage‑prediction model for this data slice. 
 
 
 {{< pagebreak >}}
@@ -114,67 +120,25 @@ In the full analysis phase, multiple advanced modeling techniques were employed 
 
 ### Univariate Analysis: Distribution Analysis
 
-The @fig-top10_soc_title displays the 10 job titles with the highest number of applications filed between 2020 and 2024, with "Software Developers, Applications" leading at over 500,000 cases. The @fig-top10_emp_name highlights the top 10 employers by application count, with "COGNIZANT TECHNOLOGY SOLUTIONS US CORP" topping the list at approximately 93,000 cases. The @fig-top10_emp_state presents the 10 states with the most applications, with California recording over 600,000 cases. Meanwhile, the @fig-distribution_PREV_WAGE illustrates the distribution of prevailing wages, revealing that most cases offer wages near $100,000 per year, while fewer cases fall at the lower end (around $15,000) or approach higher values near $800,000 (see Supplement Table 1).
+The @fig-univariate_analysis_panel_with_labels (a) displays the 10 job titles with the highest number of applications filed between 2020 and 2024, with "Software Developers, Applications" leading at over 500,000 cases. The @fig-univariate_analysis_panel_with_labels (b) highlights the top 10 employers by application count, with "COGNIZANT TECHNOLOGY SOLUTIONS US CORP" topping the list at approximately 93,000 cases. The @fig-univariate_analysis_panel_with_labels (c) presents the 10 states with the most applications, with California recording over 600,000 cases. Meanwhile, the @fig-univariate_analysis_panel_with_labels (d) illustrates the distribution of prevailing wages, revealing that most cases offer wages near $100,000 per year, while fewer cases fall at the lower end (around $15,000) or approach higher values near $800,000 (see Supplement Table 1).
 ```{r}
-#| label: fig-top10_soc_title
-#| fig-cap: "Top 10 Job Titles."
+#| label: fig-univariate_analysis_panel_with_labels
+#| fig-cap: "Univariate Analysis: Distribution Analysis."
 #| echo: FALSE
-knitr::include_graphics(here("results","figures","top10_soc_title.png"))
+knitr::include_graphics(here("results","figures","univariate_analysis_panel_with_labels.png"))
 ```
-
-```{r}
-#| label: fig-top10_emp_name
-#| fig-cap: "Top 10 Employers."
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","top10_emp_name.png"))
-```
-
-```{r}
-#| label: fig-top10_emp_state
-#| fig-cap: "Top 10 Employer Locations."
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","top10_emp_state.png"))
-```
-
-```{r}
-#| label: fig-distribution_PREV_WAGE
-#| fig-cap: "Distribution of Prevailing Wage."
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","distribution_PREV_WAGE.png"))
-```
-
 
 ### Bivariate Analysis
 
-The @fig-wage_by_soc_title shows the 10 job titles with the highest median wage, and they are all medical practitioners. The @fig-wage_by_employer highlights the 10 employers with the highest median wage, spanning healthcare, financial services, life sciences, technology, and manufacturing. The @fig-wage_by_state indicates that Washington has the highest median wage by state. Plots for the 10 lowest median wages are provided in Supplement Figures 1–3. The @fig-remote_trend_absolute illustrates the trend of remote work over the years. The number of remote work cases surged from 2019 to 2020 due to the pandemic and remained relatively stable from 2020 to 2023. Post-pandemic, there was a slight decline from 2023 to 2024. However, as remote work patterns became more established, the decrease was not significant. This analysis uses absolute values instead of proportions because remote work is identified based on discrepancies between employer and worksite states. Some remote work cases may not be captured under this definition, potentially underestimating the actual proportion. Therefore, absolute values provide a more accurate reflection of the remote work trend.
+The @fig-bivariate_analysis_panel_with_labels (a) shows the 10 job titles with the highest median wage, and they are all medical practitioners. The @fig-bivariate_analysis_panel_with_labels (b) highlights the 10 employers with the highest median wage, spanning healthcare, financial services, life sciences, technology, and manufacturing. The @fig-bivariate_analysis_panel_with_labels (c) indicates that Washington has the highest median wage by state. Plots for the 10 lowest median wages are provided in Supplement Figures 1–3. The @fig-bivariate_analysis_panel_with_labels (d) illustrates the trend of remote work over the years. The number of remote work cases surged from 2019 to 2020 due to the pandemic and remained relatively stable from 2020 to 2023. Post-pandemic, there was a slight decline from 2023 to 2024. However, as remote work patterns became more established, the decrease was not significant. This analysis uses absolute values instead of proportions because remote work is identified based on discrepancies between employer and worksite states. Some remote work cases may not be captured under this definition, potentially underestimating the actual proportion. Therefore, absolute values provide a more accurate reflection of the remote work trend.
 
 ```{r}
-#| label: fig-wage_by_soc_title
-#| fig-cap: "Top 10 Job Titles by Highest Median Wage."
+#| label: fig-bivariate_analysis_panel_with_labels
+#| fig-cap: "Bivariate Analysis."
 #| echo: FALSE
-knitr::include_graphics(here("results","figures","wage_by_soc_title.png"))
+knitr::include_graphics(here("results","figures","bivariate_analysis_panel_with_labels.png"))
 ```
 
-```{r}
-#| label: fig-wage_by_employer
-#| fig-cap: "Top 10 Employers by Highest Median Wage."
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","wage_by_employer.png"))
-```
-
-```{r}
-#| label: fig-wage_by_state
-#| fig-cap: "Top 10 States by Highest Median Wage."
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","wage_by_state.png"))
-```
-
-```{r}
-#| label: fig-remote_trend_absolute
-#| fig-cap: "Remote Work Trends Over Years."
-#| echo: FALSE
-knitr::include_graphics(here("results","figures","remote_trend_absolute.png"))
-```
 
 
 ## Initial statistical analysis
@@ -247,7 +211,7 @@ knitr::kable(table6)
 
 The initial statistical analysis shows that variables SOC title, employer location, worksite location, and employer name can serve as predictors for outcome variable wage. Based on that, Random Forest, XGBoost, and SVM were used to fit the model, including cross-validation (5-fold and 5 times repetition).
 
-Tables summarizing the performance of the three models can be found in Supplement Table 2-4. @fig-model_compare shows the cmoparison of model performance among Random Forest, XGBoost, and SVM. SVM achieves the highest accuracy on the training data (0.886), while Random Forest (0.820) and XGBoost (0.738) show slightly lower training accuracy compared to SVM. On the test set, random forest outperform among the three models with an accuracy of 0.740. The SVM model's high training performance compared with its relatively lower test performance (0.717) indicates that it might be capturing noise or very specific patterns in the training data that do not carry over to unseen data. In contrast, Random Forest keeps a better balance between fitting the training data and maintaining generalization on the test data. Therefore, the Random Forest model can be chosen to predict the wage since it appears more robust on the test data.
+Tables summarizing the performance of the three models can be found in Supplement Table 2-4. CV accuracy distribution for different models can be found in Supplement Figure 4.  @fig-model_compare shows the cmoparison of model performance among Random Forest, XGBoost, and SVM. SVM achieves the highest accuracy on the training data (0.886), while Random Forest (0.820) and XGBoost (0.738) show slightly lower training accuracy compared to SVM. On the test set, random forest outperform among the three models with an accuracy of 0.740. The SVM model's high training performance compared with its relatively lower test performance (0.717) indicates that it might be capturing noise or very specific patterns in the training data that do not carry over to unseen data. In contrast, Random Forest keeps a better balance between fitting the training data and maintaining generalization on the test data. Therefore, the Random Forest model can be chosen to predict the wage since it appears more robust on the test data.
 
 ```{r}
 #| label: fig-model_compare
@@ -261,14 +225,21 @@ knitr::include_graphics(here("results","figures","model_compare.png"))
 
 # Discussion
 
-## Summary and Interpretation
+## Labor-market findings
+The exploratory results clearly showed the dominance of the technology sector in H-1B employment, especially the role of “Software Developers, Applications,” with over 500,000 cases. California was identified as the primary destination state. Interestingly, however, higher median wages were found predominantly among medical occupations and employers in healthcare and financial industries, rather than the technology sector itself. Washington state showed the highest median wage, likely because of the presence of major technology and e-commerce companies.
 
-## Strengths and Limitations
+The analysis of remote-work cases indicated a sharp increase during 2020, driven by the pandemic. This trend remained relatively stable until a slight decrease in 2024. The persistence of remote-work practices suggests that flexible work arrangements have become established in the H-1B landscape, although the method used to identify remote work (differences between employer and worksite states) may underestimate actual prevalence.
+
+## Predictive modeling performance
+Predictive modeling using a half-month subset (January 1–15, 2024) showed promising results. Single-predictor random-forest models revealed that the employer’s identity alone significantly influenced wage predictions, indicating substantial pay differences among employers. Geographic location also had a meaningful effect. A multivariate random-forest model achieved improved test accuracy (0.73), and among the three advanced models tested—Random Forest, XGBoost, and SVM—the Random Forest model offered the best balance between accuracy on training data (0.82) and generalization on test data (0.74). This suggests that Random Forest is well-suited for predicting wage categories from this type of data.
+
+## Limitations and future directions
+There are several limitations in this study. First, predictive modeling was conducted using only a brief half-month period due to computational memory constraints, which limits generalizability to broader timeframes. Second, converting continuous wages into four broad categories simplifies the analysis but sacrifices detailed wage information. Future studies should consider expanding the analysis to larger, longer-term datasets. Exploring continuous-wage prediction models, using more sophisticated techniques for handling class imbalance, and analyzing textual information from job titles might enhance model accuracy.
 
 
-## Conclusions
+# Conclusions
 
-
+This study analyzed certified H-1B visa cases from 2020 to 2024, highlighting key trends in job titles, wages, and remote-work patterns. Predictive modeling demonstrated that a Random Forest classifier effectively predicts wage categories based on employer, occupation, and geographic location. Although limited by using a short time frame and categorized wage data, this approach provides a useful baseline for wage prediction. Future studies expanding dataset size, analyzing continuous wages, and including additional factors could further improve predictive accuracy and provide deeper insights into H-1B employment patterns.
 
 
 

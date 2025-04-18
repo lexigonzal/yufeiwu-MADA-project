@@ -5,8 +5,11 @@ library(lubridate)
 library(embed)
 library(here)
 library(ggplot2)
+library(stringr)
+library(patchwork)
 #install.packages("xgboost")
 #install.packages("kernlab")
+
 
 # Load data
 LCAwage_Jan2024 <- readRDS(here("data", "processed-data", "LCAwage_Jan2024.rds"))
@@ -82,6 +85,21 @@ print(rf_default_combined_accuracy)
 saveRDS(rf_default_combined_accuracy, file = "results/tables/rf_combined_accuracy_cv_default.rds")
 
 
+
+# Extract per‑resample accuracies
+
+cv_acc_resample <- rf_default_cv_results %>%
+  collect_metrics(summarize = FALSE) %>% 
+  filter(.metric == "accuracy") %>% 
+  mutate(
+    fold = str_extract(id, "(?<=Fold)\\d+"),     # Fold 1 … 5
+    rep  = str_extract(id, "(?<=Repeat)\\d+")    # Repeat 1 … 5
+  )
+
+
+
+
+
 # 2. XGBoot model
 # --- Define the Recipe for the XGBoost Model with Regularization ---
 # Use all predictors and one-hot encode them
@@ -152,6 +170,19 @@ print(xgb_reg_combined_accuracy)
 saveRDS(xgb_reg_combined_accuracy, file = "results/tables/combined_accuracy_cv_xgb_reg.rds")
 
 
+# Per‑resample accuracies (25 rows)
+xgb_cv_acc_resample <- xgb_reg_cv_results %>%
+  collect_metrics(summarize = FALSE) %>%          # keep every resample
+  filter(.metric == "accuracy") %>% 
+  mutate(
+    fold = str_extract(id, "(?<=Fold)\\d+"),      # Fold 1 … 5
+    rep  = str_extract(id, "(?<=Repeat)\\d+")     # Repeat 1 … 5
+  )
+
+
+
+
+
 # 3. SVM
 # --- Define the Recipe for the SVM Model ---
 # Use all predictors, one-hot encode them, and normalize the numeric predictors.
@@ -217,10 +248,11 @@ print(svm_combined_accuracy)
 # save as rds
 saveRDS(svm_combined_accuracy, file = "results/tables/combined_accuracy_cv_svm.rds")
 
+
 # Make plot
 # Add a column to indicate the model type for each set of results
 rf_acc   <- rf_default_combined_accuracy %>% mutate(model = "Random Forest")
-xgb_acc  <- xgb_default_combined_accuracy %>% mutate(model = "XGBoost")
+xgb_acc  <- xgb_reg_combined_accuracy %>% mutate(model = "XGBoost")
 svm_acc  <- svm_combined_accuracy %>% mutate(model = "SVM")
 
 # Combine the three data frames
@@ -238,4 +270,70 @@ model_compare <- ggplot(combined_model_accuracy, aes(x = dataset, y = .estimate,
 
 # Save the plot to a file
 ggsave("results/figures/model_compare.png", plot = model_compare, width = 8, height = 6)
+
+
+# Per‑resample accuracies (25 rows)
+svm_cv_acc_resample <- svm_cv_results %>%
+  collect_metrics(summarize = FALSE) %>%          # keep every resample
+  filter(.metric == "accuracy") %>% 
+  mutate(
+    fold = str_extract(id, "(?<=Fold)\\d+"),      # Fold 1 … 5
+    rep  = str_extract(id, "(?<=Repeat)\\d+")     # Repeat 1 … 5
+  )
+
+
+
+# Helper: a simple box + jitter plot of .estimate
+make_box_plot <- function(df, model_label) {
+  ggplot(df, aes(x = "", y = .estimate)) +
+    geom_boxplot(width = 0.25, outlier.shape = NA) +
+    geom_jitter(width = 0.05, height = 0, alpha = 0.7) +
+    labs(
+      title = sprintf("Distribution of %s CV accuracies", model_label),
+      x = NULL, 
+      y = "Accuracy"
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+}
+
+# 1. Random Forest accuracy distribution
+#    (assuming you have rf_default_cv_results from fit_resamples(...))
+rf_cv_acc_resample <- rf_default_cv_results %>%
+  collect_metrics(summarize = FALSE) %>%
+  filter(.metric == "accuracy")
+
+p_rf <- make_box_plot(rf_cv_acc_resample, "Random Forest")
+
+# 2. XGBoost accuracy distribution
+xgb_cv_acc_resample <- xgb_reg_cv_results %>% 
+  collect_metrics(summarize = FALSE) %>%
+  filter(.metric == "accuracy")
+
+p_xgb <- make_box_plot(xgb_cv_acc_resample, "XGBoost")
+
+# 3. SVM accuracy distribution
+svm_cv_acc_resample <- svm_cv_results %>%
+  collect_metrics(summarize = FALSE) %>%
+  filter(.metric == "accuracy")
+
+p_svm <- make_box_plot(svm_cv_acc_resample, "SVM")
+
+# Combine in a single row (3 columns)
+fold_panel <- p_rf | p_xgb | p_svm
+
+# Show in viewer / notebook
+fold_panel
+
+# Save to file
+ggsave(
+  filename = "results/figures/cv_accuracy_distribution_panel.png",
+  plot     = fold_panel,
+  width    = 12,  # in inches
+  height   = 4,
+  dpi      = 300
+)
 

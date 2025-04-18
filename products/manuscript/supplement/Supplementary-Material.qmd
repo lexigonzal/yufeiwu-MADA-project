@@ -95,7 +95,15 @@ knitr::kable(table4)
 {{< pagebreak >}}
 
 
-# Discussion
+## Full analysis
+
+@fig-cv_accuracy_distribution_panel shows CV accuracy distribution for different models.
+```{r}
+#| label: fig-cv_accuracy_distribution_panel
+#| fig-cap: "CV accuracy distribution for different models."
+#| echo: FALSE
+knitr::include_graphics(here("results","figures","cv_accuracy_distribution_panel.png"))
+```
 
 
 {{< pagebreak >}}
