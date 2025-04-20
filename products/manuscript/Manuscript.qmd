@@ -77,7 +77,6 @@ What trends can be observed in remote work prevalence before and after the pande
 
 Can a predictive model be developed to estimate wages based on job-related and employer-specific features?
 
-Which factors contribute most significantly to wage determination in certified cases?
 
 
 
